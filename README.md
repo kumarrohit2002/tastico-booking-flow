@@ -1,6 +1,6 @@
-# Tastico Booking System Master Readme
+# Tastico Booking System Readme
 
-This document represents the **current state of implementation** of the Tastico Booking System as of June 23, 2026. It documents only the features, architectures, models, enums, business rules, and API endpoints that exist in the codebase today. Idealized configurations or features not implemented are marked as `"Currently Not Implemented"`.
+This document represents the **current state of implementation** of the Tastico Booking System as of June 23, 2026. It documents only the features, architectures, models, enums, business rules, and API endpoints that exist in the codebase today. Idealized configurations or features not implemented are marked as `"Currently 
 
 ---
 
@@ -100,8 +100,7 @@ flowchart TD
     PartnerAccept -- No --> AdminAssign
 ```
 
-*   **Source File**: `src/app/api/users/booking/create/route.ts`
-*   **Source Function**: `POST()`, `calculateBill()`, `to24Hour()`
+
 
 ### Menu Selection & Cart Flow
 Items are added to the database cart (`UserCartItem` model) and validated before booking.
@@ -165,23 +164,37 @@ sequenceDiagram
 
 Although the `Refund` database model and `RefundStatus` enum are defined in the schema, no backend API routes or controllers exist in the project codebase today to process automated or manual refunds.
 
-
 ## Assignment Architecture
 
 ### Partner Assignment Flow
+
 Partner assignment is executed **manually by system admins** from the admin dashboard.
 
 ```mermaid
 flowchart TD
-    A[Admin Initiates Assignment] --> B{Verify Partner ID & Role}
-    B -- Non-Partner/Missing -- Host Error --> C[Return 400/404]
-    B -- Valid Partner --> D{Verify Service Category Compatibility}
-    D -- Mismatch --> E[Return 400 - Mismatch]
-    D -- Compatible --> F{Check Active Booking State}
-    F -- Cancelled / Completed --> G[Return 400 - Terminal State]
-    F -- Active --> H{Verify Partner Not Already Assigned}
-    H -- Already Assigned --> I[Return 400 - Duplicate]
-    H -- Fresh Assignment --> J[Write BookingPartner record & Update Booking Status to ASSIGNED]
+
+A[Admin Initiates Assignment]
+--> B{Verify Partner ID & Role}
+
+B -- Invalid Partner --> C[Return 400 / 404]
+
+B -- Valid Partner --> D{Verify Service Category Compatibility}
+
+D -- Mismatch --> E[Return 400 - Category Mismatch]
+
+D -- Compatible --> F{Check Active Booking State}
+
+F -- Cancelled / Completed --> G[Return 400 - Terminal State]
+
+F -- Active --> H{Verify Partner Not Already Assigned}
+
+H -- Already Assigned --> I[Return 400 - Duplicate Assignment]
+
+H -- Fresh Assignment --> J[Create BookingPartner Record]
+
+J --> K[Update Booking Status To ASSIGNED]
+
+K --> L[Assignment Successful]
 ```
 
 
